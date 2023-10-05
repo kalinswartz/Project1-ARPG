@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <QCARConfig>
     <Tracking>
+        <ImageTarget name="support" size="1.000000 1.000000"/>
+        <ImageTarget name="attack" size="1.000000 1.000000"/>
+        <ImageTarget name="volumeController" size="1.000000 1.000000"/>
         <ImageTarget name="Enemy" size="1.000000 1.000000"/>
         <ImageTarget name="Player2" size="1.000000 1.000000"/>
         <ImageTarget name="Player1" size="1.000000 1.000000"/>
