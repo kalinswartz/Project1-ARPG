@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.30692244, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -123,7 +123,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!43 &317831194
+--- !u!43 &531454130
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -439,7 +439,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!43 &950028693
+--- !u!43 &855687725
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -640,7 +640,7 @@ MonoBehaviour:
   mTargetName: PlayerCube
   mDatasetName: Vuforia/ARPG.xml
   mCastedBehaviour: {fileID: 1477047994}
-  mBaseMesh: {fileID: 950028693}
+  mBaseMesh: {fileID: 855687725}
 --- !u!114 &1477047993
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -681,7 +681,19 @@ MonoBehaviour:
     m_RotationOrder: 4
   OnTargetFound:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   OnTargetLost:
     m_PersistentCalls:
       m_Calls: []
@@ -879,7 +891,7 @@ MonoBehaviour:
   mTargetName: EnemyCube
   mDatasetName: Vuforia/ARPG.xml
   mCastedBehaviour: {fileID: 1994048129}
-  mBaseMesh: {fileID: 317831194}
+  mBaseMesh: {fileID: 531454130}
 --- !u!114 &1994048128
 MonoBehaviour:
   m_ObjectHideFlags: 0
