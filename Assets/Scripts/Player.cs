@@ -9,6 +9,7 @@ public abstract class Player : MonoBehaviour
 
     public int currentHealth;
     public int currentSpeed; //where base speed gets added to each action
+    [SerializeField] protected int maxHealth;
     protected int defense;
     protected int baseSpeed;
     protected int speed;

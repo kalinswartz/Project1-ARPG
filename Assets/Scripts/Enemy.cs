@@ -20,21 +20,3 @@ public abstract class Enemy : MonoBehaviour
         currentSpeed += baseSpeed;
     }
 }
-
-public class Goblin : Enemy
-{
-    public void Start()
-    {
-        currentHealth = 10;
-        currentSpeed = 0;
-        attack = 1;
-        physicalDefense = 1;
-        magicDefense = 1;
-        baseSpeed = 3;
-    }
-
-    public override void Attack()
-    {
-
-    }
-}
