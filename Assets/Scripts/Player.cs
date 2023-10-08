@@ -20,5 +20,5 @@ public abstract class Player : MonoBehaviour
     }
 
     public abstract void Support();
-    public abstract void Attack();
+    public abstract void Attack(Enemy enemy);
 }
