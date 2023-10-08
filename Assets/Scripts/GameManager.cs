@@ -6,11 +6,28 @@ using Vuforia;
 
 public class GameManager : MonoBehaviour
 {
+    public enum State
+    {
+        SelectingPlayers,
+        SelectingEnemy,
+        Player1Turn,
+        Player2Turn,
+        SupportActions,
+        EnemyTurn,
+        GameOver
+    }
+    public struct Buff
+    {
+        public int Def;
+        public int Speed;
+        public int Attack;
+    }
+
     [SerializeField] private List<GameObject> characterList;
     [SerializeField] private List<GameObject> enemyList;
-    private Player player1 = null;
-    private Player player2 = null;
-    private Enemy enemy = null;
+    public Player player1 = null;
+    public Player player2 = null;
+    public Enemy enemy = null;
     [SerializeField] private MultiTargetBehaviour EnemyCube;
     [SerializeField] private MultiTargetBehaviour PlayerCube;
 
@@ -21,23 +38,20 @@ public class GameManager : MonoBehaviour
     private bool enemyCubeVisible;
     private bool attackImageVisible;
     private bool supportImageVisible;
-    public enum State
-    {
-        SelectingPlayers,
-        SelectingEnemy,
-        Player1Turn,
-        Player2Turn,
-        RemoveBuffs,
-        ApplyBuffs,
-        EnemyTurn,
-        GameOver
-    }
+    Buff p1ActiveBuf;
+    Buff p1NextBuf;
+    Buff p2ActiveBuf;
+    Buff p2NextBuf;
     public State currentGameState;
     
     // Start is called before the first frame update
     void Start()
 
     {
+        p1ActiveBuf = new Buff { Def = 0, Speed = 0, Attack = 0};
+        p2ActiveBuf = new Buff { Def = 0, Speed = 0, Attack = 0};
+        p1NextBuf = new Buff { Def = 0, Speed = 0, Attack = 0 };
+        p2NextBuf = new Buff { Def = 0, Speed = 0, Attack = 0 };
         playerCubeRb = PlayerCube.GetComponent<Rigidbody>();   
         enemyCubeRb = EnemyCube.GetComponent<Rigidbody>();
         playerCubeVisible = false;
@@ -69,73 +83,113 @@ public class GameManager : MonoBehaviour
                     }
                 }
                 break;
+
             case State.SelectingEnemy:
                 if(enemyCubeVisible && enemyCubeRb.velocity.magnitude <= 0.01f)
                 {
                     enemy = SelectEnemyFromCube();
                     currentGameState = State.Player1Turn;
                 }
-                //if (detect EnemyCube)
-                //  enemy = whichever face of enemyCube is up
-                //  state = State.Player1Turn
-                break;                
+                break;
+                
             case State.Player1Turn:
-                player1.StartTurn();
-                while(player1.currentSpeed >= 2)
+                player1.StartTurn(); //Add baseSpeed to current speed;
+                while(player1.currentSpeed >= 2) //Check if player wants to attack or support
                 {
                     if (attackImageVisible)
                     {
                         player1.Attack(enemy);
-                        player1.currentSpeed -= 2;
+                        player1.currentSpeed -= 2; //only decrement speed if an action occurs
                     }
                     else if (supportImageVisible)
                     {
-                        //player1.Support(player1, player2); read over support actions to see if this will work in all cases
+                        player1.Support(p1NextBuf, p2NextBuf); //Self as first argument, in case support only applys to self
                         player1.currentSpeed -= 2;
                     }
                 }
-                if(player1.currentSpeed < 2)
+
+                //Check if enemy killed
+                if (enemy.currentHealth <= 0)
+                {
+                    currentGameState = State.GameOver;
+                }
+
+                if (player1.currentSpeed < 2)
                 {
                     currentGameState = State.Player2Turn;
                 }
                 break;
+
             case State.Player2Turn:
+                //Check whether p2 wants to attack or support
                 player1.StartTurn();
                 while (player2.currentSpeed >= 2)
                 {
                     if (attackImageVisible)
                     {
                         player2.Attack(enemy);
-                        player2.currentSpeed -= 2;
+                        player2.currentSpeed -= 2; 
                     }
                     else if (supportImageVisible)
                     {
-                        //player2.Support(player1, player2); read over support actions to see if this will work in all cases
+                        player2.Support(p2NextBuf, p1NextBuf); 
                         player2.currentSpeed -= 2;
                     }
                 }
+
+                if(enemy.currentHealth <= 0)
+                {
+                    currentGameState = State.GameOver;
+                }
+
                 if (player2.currentSpeed < 2)
                 {
-                    currentGameState = State.Player2Turn;
+                    currentGameState = State.SupportActions;
                 }
                 break;
-            case State.RemoveBuffs:
-                //read support actions to see if this works, maybe constant buff struct
-                //hopefully will remove buffs that were active from previous turn 
+
+            case State.SupportActions:
+                //Remove currently active buffs
+                player1.defense -= p1ActiveBuf.Def;
+                player1.baseSpeed -= p1ActiveBuf.Speed;
+                player1.attack -= p1ActiveBuf.Attack;
+
+                player2.defense -= p2ActiveBuf.Def;
+                player2.baseSpeed -= p2ActiveBuf.Speed;
+                player2.attack -= p2ActiveBuf.Attack;
+
+                //Make support actions from this turn active buffs
+                p1ActiveBuf = p1NextBuf;
+                p2ActiveBuf = p2NextBuf;
+                //Clear next buffs for next turn
+                p1NextBuf = new Buff { Def = 0, Speed = 0, Attack = 0 };
+                p2NextBuf = new Buff { Def = 0, Speed = 0, Attack = 0 };
+
+                //Apply buffs from this turn
+                player1.defense += p1ActiveBuf.Def;
+                player1.baseSpeed += p1ActiveBuf.Speed;
+                player1.attack += p1ActiveBuf.Attack;
+
+                player2.defense += p2ActiveBuf.Def;
+                player2.baseSpeed += p2ActiveBuf.Speed;
+                player2.attack += p2ActiveBuf.Attack;
+
+                //Change state
+                currentGameState = State.EnemyTurn;
                 break;
-            case State.ApplyBuffs: 
-                //applys buffs from any support actions this turn
-                break;
+
             case State.EnemyTurn:
-                enemy.StartTurn();
+                enemy.StartTurn(); //add base speed to currentSpeed
                 while(enemy.currentSpeed >= 2) {
-                    enemy.Attack();
+                    enemy.Attack(player1, player2); //randomly choose which player to damage
                     enemy.currentSpeed -= 2;
                 }
+                currentGameState = State.Player1Turn;
                 break;
         }
     }
 
+    //Helper functions
     public Player SelectPlayerFromCube()
     {
         Transform cubeTransform = PlayerCube.transform;

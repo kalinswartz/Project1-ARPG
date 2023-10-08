@@ -7,17 +7,11 @@ public class Goblin : Enemy
     public Goblin() { }
     public void Start()
     {
-
         currentHealth = 10;
         currentSpeed = 0;
         attack = 1;
         physicalDefense = 1;
         magicDefense = 1;
         baseSpeed = 3;
-    }
-
-    public override void Attack()
-    {
-
     }
 }
