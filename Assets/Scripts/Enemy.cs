@@ -9,12 +9,13 @@ public abstract class Enemy : MonoBehaviour
 {
     // Start is called before the first frame update
     public int currentHealth;
+    public int maxHealth;
     public int currentSpeed;
     public int baseSpeed;
 
-    protected int attack;
-    protected int physicalDefense;
-    protected int magicDefense;
+    public int attack;
+    public int physicalDefense;
+    public int magicDefense;
     public void Attack(Player p1, Player p2)
     {
         if (Random.value > 0.5f)
