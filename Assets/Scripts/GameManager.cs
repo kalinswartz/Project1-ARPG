@@ -83,6 +83,14 @@ public class GameManager : MonoBehaviour
                 waitTimer -= Time.deltaTime;
                 if (waitTimer < 0)
                 {
+                    if(nextGameState == State.Player1Turn)
+                    {
+                        player1.StartTurn();
+                    }
+                    if(nextGameState == State.Player2Turn)
+                    {
+                        player2.StartTurn();
+                    }
                     currentGameState = nextGameState;
                     waitTimer = 5.0f;
                 }
@@ -117,7 +125,10 @@ public class GameManager : MonoBehaviour
                 break;
                 
             case State.Player1Turn:
-                player1.StartTurn(); //Add baseSpeed to current speed;
+                 //Add baseSpeed to current speed;
+                Debug.Log("currentSpeed: " + player1.currentSpeed);
+                Debug.Log("atIV: " + attackImageVisible);
+
                 if (attackImageVisible)
                 {
                     player1.Attack(enemy);
@@ -137,13 +148,17 @@ public class GameManager : MonoBehaviour
                 }
                 if (player1.currentSpeed < 2)
                 {
+                    currentGameState = State.WaitForNextState;
                     nextGameState = State.Player2Turn;
                 }
+                Debug.Log("ceH: " + enemy.currentHealth);
+                Debug.Log("currentSPeed: " + player1.currentSpeed);
+                Debug.Log("CGS: " + currentGameState);
+                Debug.Log("\n");
                 break;
 
             case State.Player2Turn:
                 //Check whether p2 wants to attack or support
-                player2.StartTurn();
                 if (attackImageVisible)
                 {
                     player2.Attack(enemy);
@@ -154,7 +169,7 @@ public class GameManager : MonoBehaviour
                 {
                     player2.Support(p2NextBuf, p1NextBuf); 
                     player2.currentSpeed -= 2;
-                    currentGameState= State.WaitForNextState;
+                    currentGameState = State.WaitForNextState;
                 }
 
                 if (enemy.currentHealth <= 0)
@@ -163,6 +178,7 @@ public class GameManager : MonoBehaviour
                 }
                 if (player2.currentSpeed < 2)
                 {
+                    currentGameState = State.WaitForNextState;
                     nextGameState = State.SupportActions;
                 }
                 break;

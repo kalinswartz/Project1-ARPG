@@ -6411,7 +6411,7 @@ MonoBehaviour:
   PreviewVisible: 1
   RuntimeOcclusion: 0
   RuntimeCollider: 0
-  mTrackableName: attack
+  mTrackableName: Enemy
   mInitializedInEditor: 1
   mDataSetPath: Vuforia/ARPG.xml
   mAspectRatio: 1
@@ -6452,7 +6452,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mObserverBehaviour: {fileID: 2101254575}
   mHiddenRoot: {fileID: 0}
-  mTargetName: attack
+  mTargetName: Enemy
   mDatasetName: Vuforia/ARPG.xml
   mCastedBehaviour: {fileID: 2101254575}
   mMeshFilter: {fileID: 0}
