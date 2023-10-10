@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using Unity.VisualScripting;
 using UnityEngine;
 using Vuforia;
 
@@ -8,6 +10,7 @@ public class GameManager : MonoBehaviour
 {
     public enum State
     {
+        WaitForNextState,
         SelectingPlayers,
         SelectingEnemy,
         Player1Turn,
@@ -21,10 +24,11 @@ public class GameManager : MonoBehaviour
         public int Def;
         public int Speed;
         public int Attack;
+        public int Health;
     }
 
-    [SerializeField] private List<GameObject> characterList;
-    [SerializeField] private List<GameObject> enemyList;
+    public List<GameObject> characterList;
+    public List<GameObject> enemyList;
     public Player player1 = null;
     public Player player2 = null;
     public Enemy enemy = null;
@@ -43,15 +47,17 @@ public class GameManager : MonoBehaviour
     Buff p2ActiveBuf;
     Buff p2NextBuf;
     public State currentGameState;
+    public State nextGameState;
+    float waitTimer;
     
     // Start is called before the first frame update
     void Start()
-
     {
-        p1ActiveBuf = new Buff { Def = 0, Speed = 0, Attack = 0};
-        p2ActiveBuf = new Buff { Def = 0, Speed = 0, Attack = 0};
-        p1NextBuf = new Buff { Def = 0, Speed = 0, Attack = 0 };
-        p2NextBuf = new Buff { Def = 0, Speed = 0, Attack = 0 };
+        waitTimer = 5.0f;
+        p1ActiveBuf = new Buff { Def = 0, Speed = 0, Attack = 0, Health = 0 };
+        p2ActiveBuf = new Buff { Def = 0, Speed = 0, Attack = 0, Health = 0 };
+        p1NextBuf = new Buff { Def = 0, Speed = 0, Attack = 0, Health = 0 };
+        p2NextBuf = new Buff { Def = 0, Speed = 0, Attack = 0, Health = 0 };
         playerCubeRb = PlayerCube.GetComponent<Rigidbody>();   
         enemyCubeRb = EnemyCube.GetComponent<Rigidbody>();
         playerCubeVisible = false;
@@ -59,6 +65,7 @@ public class GameManager : MonoBehaviour
         attackImageVisible = false;
         supportImageVisible = false;
         currentGameState = State.SelectingPlayers;
+        nextGameState = State.SelectingEnemy;
     }
 
     // Update is called once per frame
@@ -66,6 +73,15 @@ public class GameManager : MonoBehaviour
     {
         switch(currentGameState)
         {
+            case State.WaitForNextState:
+                waitTimer -= Time.deltaTime;
+                if (waitTimer < 0)
+                {
+                    currentGameState = nextGameState;
+                    waitTimer = 5.0f;
+                }
+                break;
+
             case State.SelectingPlayers:
                 if (playerCubeVisible && playerCubeRb.velocity.magnitude <= 0.01f)
                 {
@@ -79,7 +95,8 @@ public class GameManager : MonoBehaviour
                     {
                         //  player2 = up face of playerCube + not player1
                         player2 = temp;
-                        currentGameState = State.SelectingEnemy;
+                        nextGameState = State.SelectingEnemy;
+                        currentGameState = State.WaitForNextState;
                     }
                 }
                 break;
@@ -88,7 +105,8 @@ public class GameManager : MonoBehaviour
                 if(enemyCubeVisible && enemyCubeRb.velocity.magnitude <= 0.01f)
                 {
                     enemy = SelectEnemyFromCube();
-                    currentGameState = State.Player1Turn;
+                    nextGameState = State.Player1Turn;
+                    currentGameState = State.WaitForNextState;
                 }
                 break;
                 
@@ -111,12 +129,14 @@ public class GameManager : MonoBehaviour
                 //Check if enemy killed
                 if (enemy.currentHealth <= 0)
                 {
-                    currentGameState = State.GameOver;
+                    nextGameState = State.GameOver;
+                    currentGameState = State.WaitForNextState;
                 }
 
                 if (player1.currentSpeed < 2)
                 {
-                    currentGameState = State.Player2Turn;
+                    nextGameState = State.Player2Turn;
+                    currentGameState = State.WaitForNextState;
                 }
                 break;
 
@@ -139,12 +159,14 @@ public class GameManager : MonoBehaviour
 
                 if(enemy.currentHealth <= 0)
                 {
-                    currentGameState = State.GameOver;
+                    nextGameState = State.GameOver;
+                    currentGameState = State.WaitForNextState;
                 }
 
                 if (player2.currentSpeed < 2)
                 {
-                    currentGameState = State.SupportActions;
+                    nextGameState = State.SupportActions;
+                    currentGameState = State.WaitForNextState;
                 }
                 break;
 
@@ -169,13 +191,25 @@ public class GameManager : MonoBehaviour
                 player1.defense += p1ActiveBuf.Def;
                 player1.baseSpeed += p1ActiveBuf.Speed;
                 player1.attack += p1ActiveBuf.Attack;
+                player1.currentHealth += p1ActiveBuf.Health;
 
                 player2.defense += p2ActiveBuf.Def;
                 player2.baseSpeed += p2ActiveBuf.Speed;
                 player2.attack += p2ActiveBuf.Attack;
+                player2.currentHealth += p2ActiveBuf.Health;
+
+                if(player1.currentHealth > player1.maxHealth)
+                {
+                    player1.currentHealth = player1.maxHealth;
+                }
+                if(player2.currentHealth > player2.maxHealth)
+                {
+                    player2.currentHealth = player2.maxHealth;
+                }
 
                 //Change state
-                currentGameState = State.EnemyTurn;
+                nextGameState = State.EnemyTurn;
+                currentGameState = State.WaitForNextState;
                 break;
 
             case State.EnemyTurn:
@@ -184,7 +218,8 @@ public class GameManager : MonoBehaviour
                     enemy.Attack(player1, player2); //randomly choose which player to damage
                     enemy.currentSpeed -= 2;
                 }
-                currentGameState = State.Player1Turn;
+                nextGameState = State.Player1Turn;
+                currentGameState = State.WaitForNextState;
                 break;
         }
     }
@@ -197,34 +232,34 @@ public class GameManager : MonoBehaviour
         float minimumAngle = float.MaxValue;
         if(Vector3.Angle(cubeTransform.up, Vector3.up) < minimumAngle)  //up
         {
-            //currentPlayer = barbarian
+            currentPlayer = characterList[5].GetComponent<Player>();//barbarian
             minimumAngle = Vector3.Angle(cubeTransform.up, Vector3.up);
         }
         if(Vector3.Angle(-cubeTransform.up, Vector3.up) < minimumAngle) //down
         {
-            //currentPlayer = wizard
+            currentPlayer = characterList[1].GetComponent<Player>();//wizard
             minimumAngle = Vector3.Angle(-cubeTransform.up, Vector3.up);
         }
         
         if (Vector3.Angle(cubeTransform.right, Vector3.up) < minimumAngle) //right
         {
-            //currentPlayer = cleric
+            currentPlayer = characterList[2].GetComponent<Player>();//cleric
             minimumAngle = Vector3.Angle(cubeTransform.right, Vector3.up);
         }
         if (Vector3.Angle(-cubeTransform.right, Vector3.up) < minimumAngle) //left
         {
-            //currentPlayer = bard
+            currentPlayer = characterList[4].GetComponent<Player>();//bard
             minimumAngle = Vector3.Angle(-cubeTransform.right, Vector3.up);
         }
 
         if (Vector3.Angle(cubeTransform.forward, Vector3.up) < minimumAngle) //right
         {
-            //currentPlayer = paladin
+            currentPlayer = characterList[0].GetComponent<Player>();//paladin
             minimumAngle = Vector3.Angle(cubeTransform.forward, Vector3.up);
         }
         if (Vector3.Angle(-cubeTransform.forward, Vector3.up) < minimumAngle) //left
         {
-            //currentPlayer = rogue
+            currentPlayer = characterList[3].GetComponent<Player>();//rogue
         }
         return currentPlayer;
     }
@@ -236,34 +271,35 @@ public class GameManager : MonoBehaviour
         float minimumAngle = float.MaxValue;
         if (Vector3.Angle(cubeTransform.up, Vector3.up) < minimumAngle)  //up
         {
-            //currentEnemy = golem
+            currentEnemy = enemyList[1].GetComponent<Enemy>();//golem
             minimumAngle = Vector3.Angle(cubeTransform.up, Vector3.up);
         }
         if (Vector3.Angle(-cubeTransform.up, Vector3.up) < minimumAngle) //down
         {
-            //currentEnemy = dragon
+            currentEnemy = enemyList[5].GetComponent<Enemy>();//dragon
             minimumAngle = Vector3.Angle(-cubeTransform.up, Vector3.up);
         }
 
         if (Vector3.Angle(cubeTransform.right, Vector3.up) < minimumAngle) //right
         {
-            //currentEnemy = zombie
+
+            currentEnemy = enemyList[2].GetComponent<Enemy>(); //zombie
             minimumAngle = Vector3.Angle(cubeTransform.right, Vector3.up);
         }
         if (Vector3.Angle(-cubeTransform.right, Vector3.up) < minimumAngle) //left
         {
-            //currentEnemy = vampire
+            currentEnemy = enemyList[4].GetComponent<Enemy>();//vamp
             minimumAngle = Vector3.Angle(-cubeTransform.right, Vector3.up);
         }
 
         if (Vector3.Angle(cubeTransform.forward, Vector3.up) < minimumAngle) //forward
         {
-            //currentEnemy = goblin
+            currentEnemy = enemyList[0].GetComponent<Enemy>(); //goblin
             minimumAngle = Vector3.Angle(cubeTransform.forward, Vector3.up);
         }
         if (Vector3.Angle(-cubeTransform.forward, Vector3.up) < minimumAngle) //back
         {
-            //currentEnemy = spirit
+            currentEnemy = enemyList[3].GetComponent<Enemy>();//spirit
         }
         return currentEnemy;
     }
