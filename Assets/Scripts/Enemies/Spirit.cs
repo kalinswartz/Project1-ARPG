@@ -8,6 +8,7 @@ public class Spirit : Enemy
     public void Start()
     {
         currentHealth = 15;
+        maxHealth = 15;
         currentSpeed = 0;
         attack = 2;
         physicalDefense = 2;

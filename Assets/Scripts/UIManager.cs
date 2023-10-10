@@ -82,7 +82,7 @@ public class UIManager : MonoBehaviour
             p1Health.fillAmount = gameManager.player1.currentHealth / gameManager.player1.maxHealth;
             p1DefText.text = "" + gameManager.player1.defense;
             p1AtkText.text = "" + gameManager.player1.attack;
-            p1SpdText.text = "" + gameManager.player1.currentSpeed;
+            p1SpdText.text = "" + gameManager.player1.baseSpeed;
         }
         if (gameManager.player2 != null)
         {
@@ -91,7 +91,7 @@ public class UIManager : MonoBehaviour
             p2Health.fillAmount = gameManager.player2.currentHealth / gameManager.player2.maxHealth;
             p2AtkText.text = "" + gameManager.player2.attack;
             p2DefText.text = "" + gameManager.player2.defense;
-            p2SpdText.text = "" + gameManager.player2.currentSpeed;
+            p2SpdText.text = "" + gameManager.player2.baseSpeed;
         }
         if (gameManager.enemy != null)
         {
@@ -101,7 +101,7 @@ public class UIManager : MonoBehaviour
             enemyAtkText.text = "" + gameManager.enemy.attack;
             enemyMDefText.text = "" + gameManager.enemy.magicDefense;
             enemyPDefText.text = "" + gameManager.enemy.physicalDefense;
-            enemySpdText.text = "" + gameManager.enemy.currentSpeed;
+            enemySpdText.text = "" + gameManager.enemy.baseSpeed;
         }
     }
 }

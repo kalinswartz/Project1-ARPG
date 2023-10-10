@@ -8,6 +8,7 @@ public class Zombie : Enemy
     public void Start()
     {
         currentHealth = 10;
+        maxHealth = 10;
         currentSpeed = 0;
         attack = 2;
         physicalDefense = 2;

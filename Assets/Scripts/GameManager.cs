@@ -28,20 +28,24 @@ public class GameManager : MonoBehaviour
     }
 
     public List<GameObject> characterList;
+    public List<GameObject> characterList2;
     public List<GameObject> enemyList;
     public Player player1 = null;
     public Player player2 = null;
     public Enemy enemy = null;
     [SerializeField] private MultiTargetBehaviour EnemyCube;
     [SerializeField] private MultiTargetBehaviour PlayerCube;
+    [SerializeField] private MultiTargetBehaviour Player2Cube;
 
     private Rigidbody playerCubeRb;
     private Rigidbody enemyCubeRb;
+    private Rigidbody player2CubeRb;
 
     private bool playerCubeVisible;
+    private bool player2CubeVisible;
     private bool enemyCubeVisible;
-    private bool attackImageVisible;
-    private bool supportImageVisible;
+    public bool attackImageVisible;
+    public bool supportImageVisible;
     Buff p1ActiveBuf;
     Buff p1NextBuf;
     Buff p2ActiveBuf;
@@ -58,9 +62,11 @@ public class GameManager : MonoBehaviour
         p2ActiveBuf = new Buff { Def = 0, Speed = 0, Attack = 0, Health = 0 };
         p1NextBuf = new Buff { Def = 0, Speed = 0, Attack = 0, Health = 0 };
         p2NextBuf = new Buff { Def = 0, Speed = 0, Attack = 0, Health = 0 };
-        playerCubeRb = PlayerCube.GetComponent<Rigidbody>();   
+        playerCubeRb = PlayerCube.GetComponent<Rigidbody>();
+        player2CubeRb = Player2Cube.GetComponent<Rigidbody>();
         enemyCubeRb = EnemyCube.GetComponent<Rigidbody>();
         playerCubeVisible = false;
+        player2CubeVisible = false;
         enemyCubeVisible = false;
         attackImageVisible = false;
         supportImageVisible = false;
@@ -83,14 +89,14 @@ public class GameManager : MonoBehaviour
                 break;
 
             case State.SelectingPlayers:
-                if (playerCubeVisible && playerCubeRb.velocity.magnitude <= 0.01f)
+                if (playerCubeVisible && playerCubeRb.velocity.magnitude <= 0.5f)
                 {
                     //  player1 = which face of playerCube is up
                     player1 = SelectPlayerFromCube();
                 }
-                if(player1 != null && playerCubeVisible && playerCubeRb.velocity.magnitude <= 0.01f)//if player1 != null && detect
+                if(player1 != null && player2CubeVisible && player2CubeRb.velocity.magnitude <= 0.5f)//if player1 != null && detect
                 {
-                    Player temp = SelectPlayerFromCube();
+                    Player temp = SelectPlayer2FromCube();
                     if (temp.GetType() != player1.GetType())
                     {
                         //  player2 = up face of playerCube + not player1
@@ -112,61 +118,52 @@ public class GameManager : MonoBehaviour
                 
             case State.Player1Turn:
                 player1.StartTurn(); //Add baseSpeed to current speed;
-                while(player1.currentSpeed >= 2) //Check if player wants to attack or support
+                if (attackImageVisible)
                 {
-                    if (attackImageVisible)
-                    {
-                        player1.Attack(enemy);
-                        player1.currentSpeed -= 2; //only decrement speed if an action occurs
-                    }
-                    else if (supportImageVisible)
-                    {
-                        player1.Support(p1NextBuf, p2NextBuf); //Self as first argument, in case support only applys to self
-                        player1.currentSpeed -= 2;
-                    }
+                    player1.Attack(enemy);
+                    player1.currentSpeed -= 2; //only decrement speed if an action occurs
+                    currentGameState = State.WaitForNextState;
                 }
-
+                else if (supportImageVisible)
+                {
+                    player1.Support(p1NextBuf, p2NextBuf); //Self as first argument, in case support only applys to self
+                    player1.currentSpeed -= 2;
+                    currentGameState = State.WaitForNextState;
+                }
                 //Check if enemy killed
                 if (enemy.currentHealth <= 0)
                 {
                     nextGameState = State.GameOver;
-                    currentGameState = State.WaitForNextState;
                 }
-
                 if (player1.currentSpeed < 2)
                 {
                     nextGameState = State.Player2Turn;
-                    currentGameState = State.WaitForNextState;
                 }
                 break;
 
             case State.Player2Turn:
                 //Check whether p2 wants to attack or support
-                player1.StartTurn();
-                while (player2.currentSpeed >= 2)
+                player2.StartTurn();
+                if (attackImageVisible)
                 {
-                    if (attackImageVisible)
-                    {
-                        player2.Attack(enemy);
-                        player2.currentSpeed -= 2; 
-                    }
-                    else if (supportImageVisible)
-                    {
-                        player2.Support(p2NextBuf, p1NextBuf); 
-                        player2.currentSpeed -= 2;
-                    }
-                }
-
-                if(enemy.currentHealth <= 0)
-                {
-                    nextGameState = State.GameOver;
+                    player2.Attack(enemy);
+                    player2.currentSpeed -= 2;
                     currentGameState = State.WaitForNextState;
                 }
+                else if (supportImageVisible)
+                {
+                    player2.Support(p2NextBuf, p1NextBuf); 
+                    player2.currentSpeed -= 2;
+                    currentGameState= State.WaitForNextState;
+                }
 
+                if (enemy.currentHealth <= 0)
+                {
+                    nextGameState = State.GameOver;
+                }
                 if (player2.currentSpeed < 2)
                 {
                     nextGameState = State.SupportActions;
-                    currentGameState = State.WaitForNextState;
                 }
                 break;
 
@@ -232,34 +229,89 @@ public class GameManager : MonoBehaviour
         float minimumAngle = float.MaxValue;
         if(Vector3.Angle(cubeTransform.up, Vector3.up) < minimumAngle)  //up
         {
-            currentPlayer = characterList[5].GetComponent<Player>();//barbarian
+            currentPlayer = characterList[5].GetComponent<Barbarian>();//barbarian
             minimumAngle = Vector3.Angle(cubeTransform.up, Vector3.up);
         }
         if(Vector3.Angle(-cubeTransform.up, Vector3.up) < minimumAngle) //down
         {
-            currentPlayer = characterList[1].GetComponent<Player>();//wizard
+            currentPlayer = characterList[1].GetComponent<Wizard>();//wizard
             minimumAngle = Vector3.Angle(-cubeTransform.up, Vector3.up);
         }
         
         if (Vector3.Angle(cubeTransform.right, Vector3.up) < minimumAngle) //right
         {
-            currentPlayer = characterList[2].GetComponent<Player>();//cleric
+            currentPlayer = characterList[2].GetComponent<Cleric>();//cleric
             minimumAngle = Vector3.Angle(cubeTransform.right, Vector3.up);
         }
         if (Vector3.Angle(-cubeTransform.right, Vector3.up) < minimumAngle) //left
         {
-            currentPlayer = characterList[4].GetComponent<Player>();//bard
+            currentPlayer = characterList[4].GetComponent<Bard>();//bard
             minimumAngle = Vector3.Angle(-cubeTransform.right, Vector3.up);
         }
 
         if (Vector3.Angle(cubeTransform.forward, Vector3.up) < minimumAngle) //right
         {
-            currentPlayer = characterList[0].GetComponent<Player>();//paladin
+            currentPlayer = characterList[0].GetComponent<Paladin>();//paladin
             minimumAngle = Vector3.Angle(cubeTransform.forward, Vector3.up);
         }
         if (Vector3.Angle(-cubeTransform.forward, Vector3.up) < minimumAngle) //left
         {
-            currentPlayer = characterList[3].GetComponent<Player>();//rogue
+            currentPlayer = characterList[3].GetComponent<Rogue>();//rogue
+        }
+        foreach (GameObject obj in characterList)
+        {
+            obj.SetActive(false);
+            if(obj == currentPlayer.gameObject)
+            {
+                obj.SetActive(true);
+            }
+        }
+        return currentPlayer;
+
+    }
+    public Player SelectPlayer2FromCube()
+    {
+        Transform cubeTransform = Player2Cube.transform;
+        Player currentPlayer = null;
+        float minimumAngle = float.MaxValue;
+        if (Vector3.Angle(cubeTransform.up, Vector3.up) < minimumAngle)  //up
+        {
+            currentPlayer = characterList2[5].GetComponent<Barbarian>();//barbarian
+            minimumAngle = Vector3.Angle(cubeTransform.up, Vector3.up);
+        }
+        if (Vector3.Angle(-cubeTransform.up, Vector3.up) < minimumAngle) //down
+        {
+            currentPlayer = characterList2[1].GetComponent<Wizard>();//wizard
+            minimumAngle = Vector3.Angle(-cubeTransform.up, Vector3.up);
+        }
+
+        if (Vector3.Angle(cubeTransform.right, Vector3.up) < minimumAngle) //right
+        {
+            currentPlayer = characterList2[2].GetComponent<Cleric>();//cleric
+            minimumAngle = Vector3.Angle(cubeTransform.right, Vector3.up);
+        }
+        if (Vector3.Angle(-cubeTransform.right, Vector3.up) < minimumAngle) //left
+        {
+            currentPlayer = characterList2[4].GetComponent<Bard>();//bard
+            minimumAngle = Vector3.Angle(-cubeTransform.right, Vector3.up);
+        }
+
+        if (Vector3.Angle(cubeTransform.forward, Vector3.up) < minimumAngle) //right
+        {
+            currentPlayer = characterList2[0].GetComponent<Paladin>();//paladin
+            minimumAngle = Vector3.Angle(cubeTransform.forward, Vector3.up);
+        }
+        if (Vector3.Angle(-cubeTransform.forward, Vector3.up) < minimumAngle) //left
+        {
+            currentPlayer = characterList2[3].GetComponent<Rogue>();//rogue
+        }
+        foreach (GameObject obj in characterList2)
+        {
+            obj.SetActive(false);
+            if (obj == currentPlayer.gameObject)
+            {
+                obj.SetActive(true);
+            }
         }
         return currentPlayer;
     }
@@ -271,35 +323,35 @@ public class GameManager : MonoBehaviour
         float minimumAngle = float.MaxValue;
         if (Vector3.Angle(cubeTransform.up, Vector3.up) < minimumAngle)  //up
         {
-            currentEnemy = enemyList[1].GetComponent<Enemy>();//golem
+            currentEnemy = enemyList[1].GetComponent<Golem>();//golem
             minimumAngle = Vector3.Angle(cubeTransform.up, Vector3.up);
         }
         if (Vector3.Angle(-cubeTransform.up, Vector3.up) < minimumAngle) //down
         {
-            currentEnemy = enemyList[5].GetComponent<Enemy>();//dragon
+            currentEnemy = enemyList[5].GetComponent<Dragon>();//dragon
             minimumAngle = Vector3.Angle(-cubeTransform.up, Vector3.up);
         }
 
         if (Vector3.Angle(cubeTransform.right, Vector3.up) < minimumAngle) //right
         {
 
-            currentEnemy = enemyList[2].GetComponent<Enemy>(); //zombie
+            currentEnemy = enemyList[2].GetComponent<Zombie>(); //zombie
             minimumAngle = Vector3.Angle(cubeTransform.right, Vector3.up);
         }
         if (Vector3.Angle(-cubeTransform.right, Vector3.up) < minimumAngle) //left
         {
-            currentEnemy = enemyList[4].GetComponent<Enemy>();//vamp
+            currentEnemy = enemyList[4].GetComponent<Vampire>();//vamp
             minimumAngle = Vector3.Angle(-cubeTransform.right, Vector3.up);
         }
 
         if (Vector3.Angle(cubeTransform.forward, Vector3.up) < minimumAngle) //forward
         {
-            currentEnemy = enemyList[0].GetComponent<Enemy>(); //goblin
+            currentEnemy = enemyList[0].GetComponent<Goblin>(); //goblin
             minimumAngle = Vector3.Angle(cubeTransform.forward, Vector3.up);
         }
         if (Vector3.Angle(-cubeTransform.forward, Vector3.up) < minimumAngle) //back
         {
-            currentEnemy = enemyList[3].GetComponent<Enemy>();//spirit
+            currentEnemy = enemyList[3].GetComponent<Spirit>();//spirit
         }
         return currentEnemy;
     }
@@ -327,6 +379,14 @@ public class GameManager : MonoBehaviour
     public void PlayerCubeLost()
     {
         playerCubeVisible = false;
+    }
+    public void Player2CubeDetected()
+    {
+        player2CubeVisible = true;
+    }
+    public void Player2CubeLost()
+    {
+        player2CubeVisible = false;
     }
     public void EnemyCubeDetected()
     {

@@ -7,6 +7,7 @@ public class Golem : Enemy
     public void Start()
     {
         currentHealth = 25;
+        maxHealth = 25;
         currentSpeed = 0;
         attack = 3;
         physicalDefense = 4;

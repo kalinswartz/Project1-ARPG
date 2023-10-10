@@ -8,6 +8,7 @@ public class Dragon : Enemy
     public void Start()
     {
         currentHealth = 30;
+        maxHealth = 30;
         currentSpeed = 0;
         attack = 4;
         physicalDefense = 3;

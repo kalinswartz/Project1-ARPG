@@ -8,6 +8,7 @@ public class Vampire : Enemy
     public void Start()
     {
         currentHealth = 20;
+        maxHealth = 20;
         currentSpeed = 0;
         attack = 3;
         physicalDefense = 3;
