@@ -7,18 +7,32 @@
         <ImageTarget name="Enemy" size="1.000000 1.000000"/>
         <ImageTarget name="Player2" size="1.000000 1.000000"/>
         <ImageTarget name="Player1" size="1.000000 1.000000"/>
-        <ImageTarget name="EnemyCube.Top" size="1.000000 1.000000"/>
+        <ImageTarget name="PlayerCube2.Back" size="1.000000 1.000000"/>
+        <ImageTarget name="PlayerCube2.Right" size="1.000000 1.000000"/>
+        <ImageTarget name="PlayerCube2.Bottom" size="1.000000 1.000000"/>
+        <ImageTarget name="PlayerCube2.Top" size="1.000000 1.000000"/>
+        <ImageTarget name="PlayerCube2.Front" size="1.000000 1.000000"/>
+        <ImageTarget name="PlayerCube2.Left" size="1.000000 1.000000"/>
         <ImageTarget name="EnemyCube.Back" size="1.000000 1.000000"/>
         <ImageTarget name="EnemyCube.Right" size="1.000000 1.000000"/>
         <ImageTarget name="EnemyCube.Bottom" size="1.000000 1.000000"/>
+        <ImageTarget name="EnemyCube.Top" size="1.000000 1.000000"/>
         <ImageTarget name="EnemyCube.Front" size="1.000000 1.000000"/>
         <ImageTarget name="EnemyCube.Left" size="1.000000 1.000000"/>
-        <ImageTarget name="Player1.Top" size="1.000000 1.000000"/>
         <ImageTarget name="Player1.Back" size="1.000000 1.000000"/>
         <ImageTarget name="Player1.Right" size="1.000000 1.000000"/>
         <ImageTarget name="Player1.Bottom" size="1.000000 1.000000"/>
+        <ImageTarget name="Player1.Top" size="1.000000 1.000000"/>
         <ImageTarget name="Player1.Front" size="1.000000 1.000000"/>
         <ImageTarget name="Player1.Left" size="1.000000 1.000000"/>
+        <MultiTarget name="PlayerCube2">
+            <Part name="PlayerCube2.Left" translation="-0.5 0 0" rotation="AD: 0 1 0 -90"/>
+            <Part name="PlayerCube2.Right" translation="0.5 0 0" rotation="AD: 0 1 0 90"/>
+            <Part name="PlayerCube2.Front" translation="0 0 0.5" rotation="AD: 1 0 0 0"/>
+            <Part name="PlayerCube2.Back" translation="0 0 -0.5" rotation="AD: 0 1 0 180"/>
+            <Part name="PlayerCube2.Top" translation="0 0.5 0" rotation="AD: 1 0 0 -90"/>
+            <Part name="PlayerCube2.Bottom" translation="0 -0.5 0" rotation="AD: 1 0 0 90"/>
+        </MultiTarget>
         <MultiTarget name="EnemyCube">
             <Part name="EnemyCube.Left" translation="-0.5 0 0" rotation="AD: 0 1 0 -90"/>
             <Part name="EnemyCube.Right" translation="0.5 0 0" rotation="AD: 0 1 0 90"/>
