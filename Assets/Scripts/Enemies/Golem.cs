@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 public class Golem : Enemy
 {
-    public Golem() { }
     public void Start()
     {
         currentHealth = 25;
@@ -13,5 +12,9 @@ public class Golem : Enemy
         physicalDefense = 4;
         magicDefense = 1;
         baseSpeed = 1;
+    }
+    protected override void Update()
+    {
+        base.Update();
     }
 }

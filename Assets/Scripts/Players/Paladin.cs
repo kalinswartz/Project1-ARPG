@@ -14,10 +14,10 @@ public class Paladin : Player
     }
     public override void DoDamage(Enemy enemy)
     {//physical 2
-        enemy.currentHealth -= Mathf.Max(0, enemy.physicalDefense - attack);
+        enemy.currentHealth -= Mathf.Max(0, attack - enemy.physicalDefense);
     }
 
-    public override void Support(GameManager.Buff self, GameManager.Buff other)
+    public override void Support(ref GameManager.Buff self, ref GameManager.Buff other)
     {//1 def  all party
         self.Def = 1;
         other.Def = 1;

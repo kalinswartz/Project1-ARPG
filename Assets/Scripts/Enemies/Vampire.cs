@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Vampire : Enemy
 {
-    public Vampire() { }
     public void Start()
     {
         currentHealth = 20;
@@ -14,5 +13,9 @@ public class Vampire : Enemy
         physicalDefense = 3;
         magicDefense = 3;
         baseSpeed = 3;
+    }
+    protected override void Update()
+    {
+        base.Update();
     }
 }

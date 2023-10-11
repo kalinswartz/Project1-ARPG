@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Dragon : Enemy
 {
-    public Dragon() { }
     public void Start()
     {
         currentHealth = 30;
@@ -14,5 +13,9 @@ public class Dragon : Enemy
         physicalDefense = 3;
         magicDefense = 3;
         baseSpeed = 2;
+    }
+    protected override void Update()
+    {
+        base.Update();
     }
 }

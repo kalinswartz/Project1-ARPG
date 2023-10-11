@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Zombie : Enemy
 {
-    public Zombie() { }
     public void Start()
     {
         currentHealth = 10;
@@ -14,5 +13,9 @@ public class Zombie : Enemy
         physicalDefense = 2;
         magicDefense = 2;
         baseSpeed = 1;
+    }
+    protected override void Update()
+    {
+        base.Update();
     }
 }

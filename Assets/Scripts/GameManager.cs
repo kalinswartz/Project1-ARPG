@@ -46,10 +46,12 @@ public class GameManager : MonoBehaviour
     private bool enemyCubeVisible;
     public bool attackImageVisible;
     public bool supportImageVisible;
-    Buff p1ActiveBuf;
-    Buff p1NextBuf;
-    Buff p2ActiveBuf;
-    Buff p2NextBuf;
+    public bool p1StartTurn;
+    public bool p2StartTurn;
+    public Buff p1ActiveBuf;
+    public Buff p1NextBuf;
+    public Buff p2ActiveBuf;
+    public Buff p2NextBuf;
     public State currentGameState;
     public State nextGameState;
     float waitTimer;
@@ -70,6 +72,8 @@ public class GameManager : MonoBehaviour
         enemyCubeVisible = false;
         attackImageVisible = false;
         supportImageVisible = false;
+        p1StartTurn = true;
+        p2StartTurn = true;
         currentGameState = State.SelectingPlayers;
         nextGameState = State.SelectingEnemy;
     }
@@ -83,16 +87,8 @@ public class GameManager : MonoBehaviour
                 waitTimer -= Time.deltaTime;
                 if (waitTimer < 0)
                 {
-                    if(nextGameState == State.Player1Turn)
-                    {
-                        player1.StartTurn();
-                    }
-                    if(nextGameState == State.Player2Turn)
-                    {
-                        player2.StartTurn();
-                    }
                     currentGameState = nextGameState;
-                    waitTimer = 5.0f;
+                    waitTimer = 4.0f;
                 }
                 break;
 
@@ -110,7 +106,7 @@ public class GameManager : MonoBehaviour
                         //  player2 = up face of playerCube + not player1
                         player2 = temp;
                         nextGameState = State.SelectingEnemy;
-                        currentGameState = State.WaitForNextState;
+                        currentGameState = State.SelectingEnemy;
                     }
                 }
                 break;
@@ -125,10 +121,13 @@ public class GameManager : MonoBehaviour
                 break;
                 
             case State.Player1Turn:
+                if (player1.gameObject.activeSelf) { 
+                if (p1StartTurn)
+                {
+                    player1.StartTurn();
+                    p1StartTurn = false;
+                }
                  //Add baseSpeed to current speed;
-                Debug.Log("currentSpeed: " + player1.currentSpeed);
-                Debug.Log("atIV: " + attackImageVisible);
-
                 if (attackImageVisible)
                 {
                     player1.Attack(enemy);
@@ -137,27 +136,35 @@ public class GameManager : MonoBehaviour
                 }
                 else if (supportImageVisible)
                 {
-                    player1.Support(p1NextBuf, p2NextBuf); //Self as first argument, in case support only applys to self
+                    player1.Support(ref p1NextBuf, ref p2NextBuf); //Self as first argument, in case support only applys to self
                     player1.currentSpeed -= 2;
                     currentGameState = State.WaitForNextState;
                 }
-                //Check if enemy killed
-                if (enemy.currentHealth <= 0)
-                {
-                    nextGameState = State.GameOver;
-                }
+
                 if (player1.currentSpeed < 2)
                 {
                     currentGameState = State.WaitForNextState;
                     nextGameState = State.Player2Turn;
                 }
-                Debug.Log("ceH: " + enemy.currentHealth);
-                Debug.Log("currentSPeed: " + player1.currentSpeed);
-                Debug.Log("CGS: " + currentGameState);
-                Debug.Log("\n");
+                if (enemy.currentHealth <= 0)
+                {
+                    nextGameState = State.GameOver;
+                }
+                }
+                else
+                {
+                    nextGameState = State.Player2Turn;
+                    currentGameState = State.Player2Turn;
+                }
                 break;
 
             case State.Player2Turn:
+                if (player2.gameObject.activeSelf) { 
+                if (p2StartTurn)
+                {
+                    player2.StartTurn();
+                    p2StartTurn = false;
+                }
                 //Check whether p2 wants to attack or support
                 if (attackImageVisible)
                 {
@@ -167,23 +174,31 @@ public class GameManager : MonoBehaviour
                 }
                 else if (supportImageVisible)
                 {
-                    player2.Support(p2NextBuf, p1NextBuf); 
+                    player2.Support(ref p2NextBuf, ref p1NextBuf); 
                     player2.currentSpeed -= 2;
                     currentGameState = State.WaitForNextState;
                 }
 
-                if (enemy.currentHealth <= 0)
-                {
-                    nextGameState = State.GameOver;
-                }
                 if (player2.currentSpeed < 2)
                 {
                     currentGameState = State.WaitForNextState;
                     nextGameState = State.SupportActions;
                 }
+                if (enemy.currentHealth <= 0)
+                {
+                    nextGameState = State.GameOver;
+                }
+                }
+                else
+                {
+                    nextGameState = State.EnemyTurn;
+                    currentGameState = State.EnemyTurn;
+                }
                 break;
 
             case State.SupportActions:
+                p1StartTurn = true;
+                p2StartTurn = true;
                 //Remove currently active buffs
                 player1.defense -= p1ActiveBuf.Def;
                 player1.baseSpeed -= p1ActiveBuf.Speed;
@@ -194,11 +209,19 @@ public class GameManager : MonoBehaviour
                 player2.attack -= p2ActiveBuf.Attack;
 
                 //Make support actions from this turn active buffs
-                p1ActiveBuf = p1NextBuf;
-                p2ActiveBuf = p2NextBuf;
+                p1ActiveBuf.Def = p1NextBuf.Def;
+                p1ActiveBuf.Speed = p1NextBuf.Speed;
+                p1ActiveBuf.Attack = p1NextBuf.Attack;
+                p1ActiveBuf.Health = p1NextBuf.Health;
+
+                p2ActiveBuf.Def = p2NextBuf.Def;
+                p2ActiveBuf.Speed = p2NextBuf.Speed;
+                p2ActiveBuf.Attack = p2NextBuf.Attack;
+                p2ActiveBuf.Health = p2NextBuf.Health;
+                
                 //Clear next buffs for next turn
-                p1NextBuf = new Buff { Def = 0, Speed = 0, Attack = 0 };
-                p2NextBuf = new Buff { Def = 0, Speed = 0, Attack = 0 };
+                p1NextBuf = new Buff { Def = 0, Speed = 0, Attack = 0, Health = 0 };
+                p2NextBuf = new Buff { Def = 0, Speed = 0, Attack = 0, Health = 0 };
 
                 //Apply buffs from this turn
                 player1.defense += p1ActiveBuf.Def;
@@ -222,7 +245,7 @@ public class GameManager : MonoBehaviour
 
                 //Change state
                 nextGameState = State.EnemyTurn;
-                currentGameState = State.WaitForNextState;
+                currentGameState = State.EnemyTurn;
                 break;
 
             case State.EnemyTurn:
@@ -231,6 +254,20 @@ public class GameManager : MonoBehaviour
                     enemy.Attack(player1, player2); //randomly choose which player to damage
                     enemy.currentSpeed -= 2;
                 }
+
+                if(player1.currentHealth <= 0)
+                {
+                    player1.gameObject.SetActive(false);
+                }
+                if(player2.currentHealth <= 0)
+                {
+                    player2.gameObject.SetActive(false);
+                }
+                if(!player1.gameObject.activeSelf && !player2.gameObject.activeSelf) {
+                    currentGameState = State.GameOver;
+                    break;
+                }
+
                 nextGameState = State.Player1Turn;
                 currentGameState = State.WaitForNextState;
                 break;
@@ -368,6 +405,14 @@ public class GameManager : MonoBehaviour
         if (Vector3.Angle(-cubeTransform.forward, Vector3.up) < minimumAngle) //back
         {
             currentEnemy = enemyList[3].GetComponent<Spirit>();//spirit
+        }
+        foreach (GameObject obj in enemyList)
+        {
+            obj.SetActive(false);
+            if (obj == currentEnemy.gameObject)
+            {
+                obj.SetActive(true);
+            }
         }
         return currentEnemy;
     }

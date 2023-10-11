@@ -14,10 +14,10 @@ public class Rogue : Player
     }
     public override void DoDamage(Enemy enemy)
     {//phys 2
-        enemy.currentHealth -= Mathf.Max(0, enemy.physicalDefense - attack);
+        enemy.currentHealth -= Mathf.Max(0, attack - enemy.physicalDefense);
     }
 
-    public override void Support(GameManager.Buff self, GameManager.Buff other)
+    public override void Support(ref GameManager.Buff self, ref GameManager.Buff other)
     {//2 speed all party
         self.Speed = 2;
         other.Speed = 2;

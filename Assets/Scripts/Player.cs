@@ -21,11 +21,18 @@ public abstract class Player : MonoBehaviour
     Enemy enemyTarget;
     // Start is called before the first frame update
 
+
+    private void Start()
+    {
+        attackingForward = false;
+        attackingBackward = false;
+    }
+
     private void Update()
     {
         if (attackingForward)
         {
-            Vector3.MoveTowards(transform.position, enemyTarget.transform.position, 0.02f);
+            transform.position = Vector3.MoveTowards(transform.position, enemyTarget.transform.position, 0.2f);
             if (transform.position == enemyTarget.transform.position)
             {
                 attackingForward = false;
@@ -34,7 +41,7 @@ public abstract class Player : MonoBehaviour
         }
         else if (attackingBackward)
         {
-            Vector3.MoveTowards(transform.position, startingPosition, 0.02f);
+            transform.position = Vector3.MoveTowards(transform.position, startingPosition, 0.2f);
             if (transform.position == startingPosition)
             {
                 attackingBackward = false;
@@ -47,21 +54,17 @@ public abstract class Player : MonoBehaviour
     }
     public void Attack(Enemy enemy)
     {
-        enemyTarget = enemy; 
         DoDamage(enemy);
         MoveToAndBack(enemy);
     }
 
     public void MoveToAndBack(Enemy enemy)
     {
+        enemyTarget = enemy;
         startingPosition = this.transform.position;
         attackingForward = true;
     }
 
     public abstract void DoDamage(Enemy enemy);
-    public abstract void Support(GameManager.Buff self, GameManager.Buff other);
- 
-
-
-
+    public abstract void Support(ref GameManager.Buff self, ref GameManager.Buff other);
 }

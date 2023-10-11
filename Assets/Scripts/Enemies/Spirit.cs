@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Spirit : Enemy
 {
-    public Spirit() { }
     public void Start()
     {
         currentHealth = 15;
@@ -14,5 +13,9 @@ public class Spirit : Enemy
         physicalDefense = 2;
         magicDefense = 3;
         baseSpeed = 2;
+    }
+    protected override void Update()
+    {
+        base.Update();
     }
 }

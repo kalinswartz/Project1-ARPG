@@ -14,10 +14,10 @@ public class Wizard : Player
     }
     public override void DoDamage(Enemy enemy)
     {//magic 3
-        enemy.currentHealth -= Mathf.Max(0, enemy.magicDefense - attack);
+        enemy.currentHealth -= Mathf.Max(0,attack - enemy.magicDefense);
     }
 
-    public override void Support(GameManager.Buff self, GameManager.Buff other)
+    public override void Support(ref GameManager.Buff self, ref GameManager.Buff other)
     {//double self attack -2hp all
         self.Attack = attack;
         self.Health = -2;

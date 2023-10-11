@@ -79,29 +79,29 @@ public class UIManager : MonoBehaviour
         {
             p1Info.SetActive(true);
             p1Name.text = "Player 1 : " + gameManager.player1.GetType().Name;
-            p1Health.fillAmount = gameManager.player1.currentHealth / gameManager.player1.maxHealth;
+            p1Health.fillAmount = (float)gameManager.player1.currentHealth / gameManager.player1.maxHealth;
             p1DefText.text = "" + gameManager.player1.defense;
             p1AtkText.text = "" + gameManager.player1.attack;
-            p1SpdText.text = "" + gameManager.player1.baseSpeed;
+            p1SpdText.text = "" + gameManager.player1.currentSpeed;
         }
         if (gameManager.player2 != null)
         {
             p2Info.SetActive(true);
             p2Name.text = "Player 2 : " + gameManager.player2.GetType().Name;
-            p2Health.fillAmount = gameManager.player2.currentHealth / gameManager.player2.maxHealth;
+            p2Health.fillAmount = (float)gameManager.player2.currentHealth / gameManager.player2.maxHealth;
             p2AtkText.text = "" + gameManager.player2.attack;
             p2DefText.text = "" + gameManager.player2.defense;
-            p2SpdText.text = "" + gameManager.player2.baseSpeed;
+            p2SpdText.text = "" + gameManager.player2.currentSpeed;
         }
         if (gameManager.enemy != null)
         {
             enemyInfo.SetActive(true);
             enemyName.text = "Enemy : " + gameManager.enemy.GetType().Name;
-            enemyHealth.fillAmount = gameManager.enemy.currentHealth / gameManager.enemy.maxHealth;
+            enemyHealth.fillAmount = (float)gameManager.enemy.currentHealth / gameManager.enemy.maxHealth;
             enemyAtkText.text = "" + gameManager.enemy.attack;
             enemyMDefText.text = "" + gameManager.enemy.magicDefense;
             enemyPDefText.text = "" + gameManager.enemy.physicalDefense;
-            enemySpdText.text = "" + gameManager.enemy.baseSpeed;
+            enemySpdText.text = "" + gameManager.enemy.currentSpeed;
         }
     }
 }

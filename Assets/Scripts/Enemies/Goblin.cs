@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Goblin : Enemy
 {
-    public Goblin() { }
     public void Start()
     {
         currentHealth = 10;
@@ -14,5 +13,9 @@ public class Goblin : Enemy
         physicalDefense = 1;
         magicDefense = 1;
         baseSpeed = 3;
+    }
+    protected override void Update()
+    {
+        base.Update();
     }
 }

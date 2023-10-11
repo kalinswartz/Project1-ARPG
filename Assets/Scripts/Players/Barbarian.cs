@@ -15,10 +15,10 @@ public class Barbarian : Player
     }
     public override void DoDamage(Enemy enemy)
     {//physical 3
-        enemy.currentHealth -= Mathf.Max(0, enemy.physicalDefense - attack);
+        enemy.currentHealth -= Mathf.Max(0, attack - enemy.physicalDefense);
     }
 
-    public override void Support(GameManager.Buff self, GameManager.Buff other)
+    public override void Support(ref GameManager.Buff self, ref GameManager.Buff other)
     {//double attack -2 def
         self.Def = -2;
         self.Attack = attack;
