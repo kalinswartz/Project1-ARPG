@@ -9,8 +9,8 @@ public class Wizard : Player
         maxHealth = 7;
         currentHealth = maxHealth;
         attack = 3;
-        defense = 2;
-        baseSpeed = 1;
+        defense = 1;
+        baseSpeed = 2;
     }
     public override void DoDamage(Enemy enemy)
     {//magic 3
